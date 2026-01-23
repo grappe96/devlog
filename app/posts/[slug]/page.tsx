@@ -1,6 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { getAllPostSlugs, getPostBySlug } from "@/lib/posts"
+import { notFound } from "next/navigation"
 
 interface PostPageProps {
   params: {
@@ -10,15 +12,25 @@ interface PostPageProps {
 
 // 정적 export를 위한 generateStaticParams 함수
 export function generateStaticParams() {
-  // placeholder 단계: 샘플 slug들 반환
-  // 다음 단계에서 실제 게시글 파일 목록을 기반으로 동적으로 생성
-  return [
-    { slug: 'sample-1' },
-    { slug: 'sample-2' },
-  ]
+  const slugs = getAllPostSlugs()
+  return slugs.map((slug) => ({
+    slug,
+  }))
 }
 
+// 존재하지 않는 경로는 404 반환
+export const dynamicParams = false
+
+// 정적 생성 강제 (RSC 리소스 요청 방지)
+export const dynamic = 'force-static'
+
 export default function PostPage({ params }: PostPageProps) {
+  const post = getPostBySlug(params.slug)
+
+  if (!post) {
+    notFound()
+  }
+
   return (
     <div className="space-y-8">
       <div className="space-y-4">
@@ -28,16 +40,36 @@ export default function PostPage({ params }: PostPageProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>게시글 제목: {params.slug}</CardTitle>
+            <CardTitle>{post.title}</CardTitle>
             <CardDescription>
-              게시글 상세 페이지 placeholder입니다.
+              {post.description}
             </CardDescription>
+            <div className="flex items-center gap-4 pt-2">
+              <time className="text-sm text-muted-foreground">
+                {new Date(post.date).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+              {post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-md"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="prose max-w-none">
-              <p className="text-muted-foreground">
-                이곳에 게시글 본문 내용이 표시됩니다.
-                실제 게시글 데이터와 MDX 렌더링은 다음 단계에서 구현됩니다.
+              <p className="text-muted-foreground whitespace-pre-wrap">
+                {post.content}
               </p>
             </div>
           </CardContent>
