@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { getAllPostSlugs, getPostBySlug } from "@/lib/posts"
 import { notFound } from "next/navigation"
+import { PostContent } from "@/components/post/PostContent"
 
 interface PostPageProps {
   params: {
@@ -11,6 +12,7 @@ interface PostPageProps {
 }
 
 // 정적 export를 위한 generateStaticParams 함수
+// 동기 함수로 변경 (Next.js 14 호환성)
 export function generateStaticParams() {
   const slugs = getAllPostSlugs()
   return slugs.map((slug) => ({
@@ -67,11 +69,7 @@ export default function PostPage({ params }: PostPageProps) {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="prose max-w-none">
-              <p className="text-muted-foreground whitespace-pre-wrap">
-                {post.content}
-              </p>
-            </div>
+            <PostContent content={post.content} />
           </CardContent>
         </Card>
       </div>

@@ -35,3 +35,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 코드 블록 스타일 커스터마이징 */
+.prose pre {
+  @apply bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-border overflow-x-auto;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+/* highlight.js 스타일 오버라이드 */
+.prose pre code.hljs {
+  background: transparent;
+  padding: 0;
+}
+
+.prose .hljs {
+  background: transparent;
+}
