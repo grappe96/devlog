@@ -20,7 +20,7 @@ export function PostContent({ content }: PostContentProps) {
             // className에 'language-'가 있으면 코드 블록, 없으면 인라인 코드
             const match = /language-(\w+)/.exec(className || '')
             const isInline = !match
-            
+
             if (isInline) {
               // 인라인 코드
               return (
@@ -32,12 +32,21 @@ export function PostContent({ content }: PostContentProps) {
                 </code>
               )
             }
-            
+
             // 코드 블록인 경우 - rehype-highlight가 처리한 className 유지
             return (
               <code className={className} {...props}>
                 {children}
               </code>
+            )
+          },
+          pre: ({ node, children, ...props }: any) => {
+            // pre 태그는 CSS에서 !important로 스타일이 적용되므로
+            // 여기서는 최소한의 클래스만 추가
+            return (
+              <pre {...props}>
+                {children}
+              </pre>
             )
           },
           // 링크는 새 탭에서 열기

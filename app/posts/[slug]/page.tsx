@@ -6,6 +6,7 @@ import { getAllPostSlugs, getPostBySlug } from "@/lib/posts"
 import { notFound } from "next/navigation"
 import { PostContent } from "@/components/post/PostContent"
 import { GiscusComments } from "@/components/comments/GiscusComments"
+import { TagButton } from "@/components/post/TagButton"
 
 interface PostPageProps {
   params: {
@@ -102,12 +103,14 @@ export default function PostPage({ params }: PostPageProps) {
               {post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
-                    <span
+                    <TagButton
                       key={tag}
-                      className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-md"
-                    >
-                      {tag}
-                    </span>
+                      tag={tag}
+                      variant="secondary"
+                      size="sm"
+                      className="text-xs h-6 px-2 py-0"
+                      linkToHome={true}
+                    />
                   ))}
                 </div>
               )}
