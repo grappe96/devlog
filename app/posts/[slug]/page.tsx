@@ -1,9 +1,11 @@
+import type { Metadata } from "next"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { getAllPostSlugs, getPostBySlug } from "@/lib/posts"
 import { notFound } from "next/navigation"
 import { PostContent } from "@/components/post/PostContent"
+import { GiscusComments } from "@/components/comments/GiscusComments"
 
 interface PostPageProps {
   params: {
@@ -26,12 +28,55 @@ export const dynamicParams = false
 // 정적 생성 강제 (RSC 리소스 요청 방지)
 export const dynamic = 'force-static'
 
+// 동적 메타데이터 생성
+export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
+  const post = getPostBySlug(params.slug)
+
+  if (!post) {
+    return {
+      title: '게시글을 찾을 수 없습니다',
+    }
+  }
+
+  const baseUrl = 'https://grappe96.github.io'
+  const basePath = '/devlog'
+  const url = `${baseUrl}${basePath}/posts/${params.slug}`
+  const siteName = 'DevLog'
+
+  return {
+    title: post.title,
+    description: post.description,
+    keywords: post.tags,
+    authors: [{ name: 'DevLog' }],
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url,
+      siteName,
+      type: 'article',
+      publishedTime: post.date,
+      tags: post.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
+    },
+    alternates: {
+      canonical: url,
+    },
+  }
+}
+
 export default function PostPage({ params }: PostPageProps) {
   const post = getPostBySlug(params.slug)
 
   if (!post) {
     notFound()
   }
+
+  // basePath를 고려한 전체 경로 생성
+  const postPath = `/posts/${params.slug}`
 
   return (
     <div className="space-y-8">
@@ -72,6 +117,12 @@ export default function PostPage({ params }: PostPageProps) {
             <PostContent content={post.content} />
           </CardContent>
         </Card>
+
+        {/* 댓글 섹션 */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">댓글</h2>
+          <GiscusComments term={postPath} />
+        </div>
       </div>
     </div>
   )
